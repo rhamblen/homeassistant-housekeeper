@@ -61,10 +61,14 @@ the grid source). One correction made:
 - **Grid export source** changed from `sensor.myenergi_hub_20111566_grid_export_today`
   (real-time CT estimate, daily reset) → `sensor.octopus_energy_electricity_21j0061481_2000017536930_current_total_export`
   (metered, cumulative, consistent with the Octopus import source).
-- **Export earnings still not tracked** — `entity_energy_price_export` / `number_energy_price_export` /
-  `stat_compensation` are null and the Octopus `…_export_compensation` sensor is `unavailable`
-  (no export tariff/rate configured in the Octopus integration). Pending: set a fixed export rate
-  via `number_energy_price_export`, or configure the export tariff so the rate/compensation sensors populate.
+- **Export earnings not tracked — deferred ("add costs later").** Richard is on the **Feed-in
+  Tariff (FIT)**, scheme ID on file — NOT Octopus Outgoing/SEG. FIT pays a **generation tariff**
+  (on all kWh generated, usually the larger part) **plus an export tariff** (commonly *deemed* at
+  50% of generation, paid quarterly by the licensee). The Energy Dashboard's export-price field
+  only models export × price on *metered* export, so it can't represent FIT income properly.
+  When picked up: build a dedicated **FIT income helper** (generation income + export income +
+  total). Needs from Richard: generation tariff (p/kWh), export tariff (p/kWh), and whether export
+  is deemed (50%) or metered. Dashboard currently shows export volume with no £ — accurate, not misleading.
 - No home battery (confirmed) — no battery source needed.
 
 ## Still pending in Phase 1

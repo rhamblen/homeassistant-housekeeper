@@ -31,5 +31,6 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Notes
 - Energy Dashboard audit: already well configured (solar/gas/grid + device breakdown). No battery.
-- Pending in Phase 1: `statistics` baselines (after ~1–2 weeks of data); export **earnings**
-  (needs a fixed export rate or the Octopus export tariff configured).
+- Pending in Phase 1: `statistics` baselines (after ~1–2 weeks of data); **FIT income** modelling
+  (deferred — Richard is on the Feed-in Tariff; needs a dedicated generation + export income helper,
+  not the dashboard export-price field).
