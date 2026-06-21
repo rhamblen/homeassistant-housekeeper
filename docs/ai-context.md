@@ -37,6 +37,16 @@ demand). Never ask the LLM to crunch raw numbers — see [ADR-0001](decisions/00
 | Cost / tariff | Octopus (half-hourly, ~1 day delayed; no Home Mini) |
 | Access to HA | via the `Home_Assistant` MCP tools in-session |
 
+## Tooling notes
+
+- **n8n** is available on the network (its MCP can be enabled on request). **Deliberately not
+  used in Phases 1–3** — narration, watchdogs, and vision all run natively in HA (AI Task +
+  Ollama integration + automations), which keeps logic in one place and the repo as the single
+  source of truth (ADR-0002). Reach for n8n only when a workflow becomes genuinely agentic /
+  multi-step with branching, retries, or external-API chaining that is ugly as HA automations —
+  likely candidates are **Phase 4** (load-fingerprinting orchestration) and **Phase 6** (an agent
+  that chains queries before acting). Bring it in deliberately for that piece, not as default plumbing.
+
 ## Key entities (the ones phases build on)
 
 | Entity | Role |
