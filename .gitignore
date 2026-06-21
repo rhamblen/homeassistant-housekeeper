@@ -1,0 +1,22 @@
+# Secrets — never commit
+secrets.yaml
+*.secret
+.env
+*token*
+*credentials*
+
+# HA runtime / storage (not version-controlled by design — see ADR-0002)
+.storage/
+home-assistant.log*
+*.db
+*.db-*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Scratch
+*.tmp
+scratch/
