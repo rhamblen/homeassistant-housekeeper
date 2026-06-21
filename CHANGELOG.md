@@ -16,8 +16,6 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `docs/release-process.md` — versioning & GitHub release workflow.
 - ADR-0001 — LLM narrates, Home Assistant analyses.
 - ADR-0002 — repository as source of truth; YAML packages where version control matters.
-- `docs/DOC_CONVENTIONS.md` — shareable documentation conventions for this repo (mirrors
-  the portable note in the maintainer's global config).
 
 ### Notes
 - No HA configuration changes yet — Phase 0/1 implementation is the next step.
