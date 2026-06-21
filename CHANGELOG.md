@@ -31,9 +31,14 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Docs: model choices reconciled to the **actually-installed** Ollama models (`llama3.1:8b` for
   narration/control, `minicpm-v` for vision); `qwen2.5:14b` reframed as an optional later upgrade.
 
-### Added (Phase 2 prep)
-- `prompts/energy-snapshot.md` — first self-contained AI Task narration prompt (MVP), uses only
-  existing live entities.
+### Added (Phase 2 — first narration working)
+- Connected the **Ollama** integration (entry `01KVNASEQNK3PXX03ZE7TX943D`).
+- Created **AI Task** agent `ai_task.ollama_ai_task_llama3_1` (model `llama3.1`, `num_ctx` 8192,
+  `keep_alive` -1).
+- `prompts/energy-snapshot.md` — first AI Task narration prompt, test-fired live and verified accurate.
+- Build log: `docs/phases/phase-2-ai-narration.md`.
+- Lesson captured: pre-compute facts in HA (e.g. import/export direction) — never let the 8B model
+  interpret signs/arithmetic (ADR-0001).
 
 ### Notes
 - Energy Dashboard audit: already well configured (solar/gas/grid + device breakdown). No battery.

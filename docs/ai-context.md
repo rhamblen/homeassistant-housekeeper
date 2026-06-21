@@ -36,6 +36,7 @@ demand). Never ask the LLM to crunch raw numbers — see [ADR-0001](decisions/00
 | Real-time power | myenergi harvi grid CT (NOT the smart meter) |
 | Cost / tariff | Octopus (half-hourly, ~1 day delayed; no Home Mini) |
 | Access to HA | via the `Home_Assistant` MCP tools in-session |
+| Ollama entry | `01KVNASEQNK3PXX03ZE7TX943D` (loaded). AI Task entity `ai_task.ollama_ai_task_llama3_1` (llama3.1, num_ctx 8192, keep_alive -1) |
 
 ## Tooling notes
 
@@ -70,7 +71,7 @@ Full baseline in [inventory.md](inventory.md); design/hardware detail in [archit
 |------:|------|--------|
 | 0 | Foundations (Ollama connect, repo, exposed entities) | ☐ |
 | 1 | Consumption capture (utility_meter / integration / statistics helpers, `house_power_now`) | ◐ Tier-1 built |
-| 2 | AI narration (morning briefing, wash cost, energy review) | ☐ |
+| 2 | AI narration (morning briefing, wash cost, energy review) | ◐ first narration working |
 | 3 | Anomaly watchdogs (garden leak, device offline, left-on) | ☐ |
 | 4 | Load fingerprinting / disaggregation | ☐ |
 | 5 | Camera intelligence (vision) | ☐ |
