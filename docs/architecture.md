@@ -52,13 +52,19 @@ deliberately (by Claude/MCP or by hand), reviewed, and recorded in this repo.
 
 ## Model choices
 
-| Use | Model | Fits |
-|---|---|---|
-| Brain (conversation + AI Task) | `qwen2.5:14b-instruct` (~9 GB) | RTX 3090; step up to `qwen2.5:32b` if freed |
-| Vision (cameras) | `qwen2.5vl:7b` (~6 GB) or `moondream` (~1.7 GB) | RTX 3060 |
+Using models **already installed** on the Ollama box (verified 2026-06-21):
 
-Set `num_ctx` to 8192+ for the conversation agent (default 2048 is too small once
-entities are in the prompt).
+| Use | Model (installed) | Notes |
+|---|---|---|
+| Brain (AI Task narration + control) | `llama3.1:8b` | tools-capable, 131k ctx — adequate for narration; start here |
+| Vision (cameras) | `minicpm-v:7.6b` | vision-capable — Phase 5 |
+| HA Assist (fast control) | `MrTails/Tails-assistant-ai-v3` (3.2B) | purpose-built for HA Assist; try in Phase 6 |
+| Reasoning (no tools) | `deepseek-r1:8b` | optional |
+
+Also installed: `mistral:7b` (tools), `phi3`, `codellama`, `llama3:8b` (legacy).
+**Optional upgrade:** pull `qwen2.5:14b` only if the 8B proves weak at multi-step control
+over the large entity set (Phase 6). Set `num_ctx` to 8192+ for the conversation agent
+(default 2048 is too small once entities are in the prompt).
 
 ## Data-source notes
 

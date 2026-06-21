@@ -28,6 +28,12 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 - Energy Dashboard: grid **export** source switched from the myenergi daily-reset CT estimate
   to the metered Octopus export sensor (`…_current_total_export`), consistent with the import source.
+- Docs: model choices reconciled to the **actually-installed** Ollama models (`llama3.1:8b` for
+  narration/control, `minicpm-v` for vision); `qwen2.5:14b` reframed as an optional later upgrade.
+
+### Added (Phase 2 prep)
+- `prompts/energy-snapshot.md` — first self-contained AI Task narration prompt (MVP), uses only
+  existing live entities.
 
 ### Notes
 - Energy Dashboard audit: already well configured (solar/gas/grid + device breakdown). No battery.

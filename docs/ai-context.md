@@ -32,7 +32,7 @@ demand). Never ask the LLM to crunch raw numbers — see [ADR-0001](decisions/00
 | Home Assistant | `192.168.1.64`, HA 2026.7 (dev), 5,732 entities, 26 areas |
 | Ollama | `http://192.168.1.32:11434` (Docker on Unraid UR1, br0) |
 | GPUs | RTX 3090 24 GB (brain) + RTX 3060 12 GB (vision) on UR1 |
-| Models | `qwen2.5:14b` (conversation/AI Task), `qwen2.5vl:7b` (camera vision) |
+| Models (installed) | `llama3.1:8b` (tools — narration/control), `minicpm-v:7.6b` (vision). Also `mistral:7b`, `MrTails/Tails-assistant-ai-v3` (HA-tuned), `deepseek-r1:8b`. `qwen2.5:14b` = optional later upgrade. |
 | Real-time power | myenergi harvi grid CT (NOT the smart meter) |
 | Cost / tariff | Octopus (half-hourly, ~1 day delayed; no Home Mini) |
 | Access to HA | via the `Home_Assistant` MCP tools in-session |
