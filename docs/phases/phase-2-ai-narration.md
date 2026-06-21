@@ -69,6 +69,12 @@ Added a live energy-flow Sankey on a new **Flow** panel view of `/ai-housekeeper
   shrinks as metering improves (smart plugs / CT clamp, or the overnight-minimum baseline trick).
 - "Returned" renamed to **Grid export** per request.
 
+**Sankey v1 (finalised 2026-06-21):** card options set — `height: 400`, `min_box_height: 5`
+(tiny nodes stay visible), `show_units: true`, `show_names: true`; remainder node renamed
+**"Other (unmonitored)"**. Phase 4 metering paused; baseline sensors keep learning in the
+background. NOTE: the custom card can only be visually verified in the user's browser after a
+hard-refresh — confirm it renders (no "custom element doesn't exist").
+
 ## Next
 - Build the morning-briefing prompt + a scheduled automation (notify / Sonos TTS), test-fired before scheduling.
 - Optionally add a `conversation` subentry for Phase 6 (control), and try `MrTails/Tails-assistant-ai` for Assist.

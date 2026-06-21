@@ -47,10 +47,11 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `sensor.house_consumption_today`, `sensor.solar_unused_today`, `sensor.solar_self_used_today`
   (full-day, off the native myenergi `…_today` totals). Routing balances: generated = self-used +
   immersion + export.
-- **Sankey flow diagram** on a new **Flow** view: Grid + Solar → House → Car / Immersion / Pool /
-  Washing / Other-baseline (+ Solar → Grid export). Uses HACS `ha-sankey-chart` (browser
-  hard-refresh needed) and new helper `sensor.other_baseline_today` (unmetered remainder). Kitchen/
-  fridge/lighting fall into "Other / baseline" until metered.
+- **Sankey flow diagram (v1)** on a new **Flow** view: Grid + Solar → House → Car / Immersion /
+  Pool / Washing / Other (unmonitored) (+ Solar → Grid export). Uses HACS `ha-sankey-chart`
+  (browser hard-refresh needed) and new helper `sensor.other_baseline_today` (unmetered remainder).
+  v1 card options: height 400, visible small nodes, units shown. Phase 4 metering paused; baseline
+  sensors (`house_baseline_power/today`) keep learning for later.
 
 ### Notes
 - Energy Dashboard audit: already well configured (solar/gas/grid + device breakdown). No battery.
