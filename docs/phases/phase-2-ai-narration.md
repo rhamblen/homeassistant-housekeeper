@@ -75,6 +75,14 @@ Added a live energy-flow Sankey on a new **Flow** panel view of `/ai-housekeeper
 background. NOTE: the custom card can only be visually verified in the user's browser after a
 hard-refresh — confirm it renders (no "custom element doesn't exist").
 
+**Sankey v1.1 (2026-06-22):** matched the original mockup — per-node **colours** (solar green,
+grid amber, house blue, immersion coral, car purple, pool teal, export/other gray) and moved
+**Immersion + Car charging into the 2nd wave** as siblings of House and Grid export (fed by the
+sources), instead of children of House. New helper `sensor.house_general_today`
+(= consumption − immersion − car) so House's children balance: pool + washing + other.
+Still inside "Other (unmonitored)": kitchen/ovens, fridge/freezer, lighting — they need the
+paused Phase 4 metering (or smart plugs) before they can be their own 3rd-wave nodes.
+
 ## Next
 - Build the morning-briefing prompt + a scheduled automation (notify / Sonos TTS), test-fired before scheduling.
 - Optionally add a `conversation` subentry for Phase 6 (control), and try `MrTails/Tails-assistant-ai` for Assist.
