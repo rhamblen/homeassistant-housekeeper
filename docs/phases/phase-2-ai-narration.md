@@ -38,6 +38,23 @@ A new dashboard surfaces everything built so far and showcases the AI live.
 - Verified: refresh button produces accurate text, e.g. *"Right now we're using 3.74 kW from the
   grid. Today's usage is 14.16 kWh and our solar panels have generated 14.07 kWh so far!"*
 
+### Energy-flow expansion (2026-06-21)
+Reworked the dashboard into a full energy-flow picture. myenergi already exposes full-day
+(midnight-reset) totals natively, so most figures need no helper:
+- Native: `…grid_import_today`, `…generated_today`, `…grid_export_today`,
+  `…zappi…energy_used_today` (car charging), `…power_import` (grid now).
+- Derived **template helpers** built:
+  - `sensor.house_consumption_today` = generated + grid_import − grid_export (full-day total consumed)
+  - `sensor.solar_unused_today` = grid_export + immersion (return + immersion, per Richard's definition)
+  - `sensor.solar_self_used_today` = generated − export − immersion (clamped ≥ 0)
+- **Balance identity** (verified live): generated = self-used + immersion + export
+  (14.07 = 13.75 + 0.11 + 0.21). And in = out: grid_import + generated = consumed + export.
+- New dashboard sections: **Right now**, **AI snapshot**, **Energy in & out (today)**,
+  **Solar routing (today)** (generated → self-used / unused → returned / immersion),
+  **Loads (today)** (car charging, immersion, washing machine, pool), **This month**, **Trend (24h)**.
+- Caveat: immersion/per-device daily meters are partial for *today* (created this afternoon);
+  myenergi grid/solar totals are full-day. All align from the next full day.
+
 ## Next
 - Build the morning-briefing prompt + a scheduled automation (notify / Sonos TTS), test-fired before scheduling.
 - Optionally add a `conversation` subentry for Phase 6 (control), and try `MrTails/Tails-assistant-ai` for Assist.

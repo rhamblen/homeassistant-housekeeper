@@ -58,6 +58,8 @@ demand). Never ask the LLM to crunch raw numbers — see [ADR-0001](decisions/00
 | `sensor.house_power_now` | **Built (Phase 1)** — min_max(sum) of generation + grid (W) |
 | `sensor.house_energy_total` | **Built (Phase 1)** — Riemann integral of house_power_now (kWh) |
 | `sensor.{house,washing_machine,pool,hot_water}_energy_{daily,monthly}` | **Built (Phase 1)** — utility_meter cycles |
+| `sensor.house_consumption_today` / `solar_unused_today` / `solar_self_used_today` | **Built (Phase 2 dash)** — template helpers for energy-flow (full-day, from myenergi `…_today` sensors) |
+| myenergi `…_grid_import_today` / `…_grid_export_today` / `…_generated_today` / zappi `…_energy_used_today` | Native full-day (midnight-reset) energy totals used on the dashboard |
 | `sensor.pool_power_power` / `_energy` | Pool circuit (Shelly PM) |
 | `sensor.washing_machine_energy` / `_machine_state` / `_job_state` / `_completion_time` | Samsung washer (SmartThings); energy reliable, live W coarse |
 | `sensor.hot_water_diverted_energy_solar_iboost` | Immersion diversion (kWh) |

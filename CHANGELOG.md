@@ -42,6 +42,11 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Housekeeper dashboard** at `/ai-housekeeper`: live `house_power_now` gauge, per-device Today/
   Month tiles, 24h trend, and an **AI snapshot** card (`input_text.ai_energy_snapshot` +
   `script.refresh_energy_snapshot`) with a one-tap Refresh button.
+- **Energy-flow layout**: sections for Energy in & out, Solar routing (generated → self-used /
+  unused → returned / immersion), and Loads (incl. car charging). New derived template helpers
+  `sensor.house_consumption_today`, `sensor.solar_unused_today`, `sensor.solar_self_used_today`
+  (full-day, off the native myenergi `…_today` totals). Routing balances: generated = self-used +
+  immersion + export.
 
 ### Notes
 - Energy Dashboard audit: already well configured (solar/gas/grid + device breakdown). No battery.
