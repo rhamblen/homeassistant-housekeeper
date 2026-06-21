@@ -25,5 +25,11 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `sensor.{house,washing_machine,pool,hot_water}_energy_{daily,monthly}`.
 - Build log: `docs/phases/phase-1-consumption-capture.md`.
 
+### Changed
+- Energy Dashboard: grid **export** source switched from the myenergi daily-reset CT estimate
+  to the metered Octopus export sensor (`…_current_total_export`), consistent with the import source.
+
 ### Notes
-- Pending in Phase 1: `statistics` baselines (after ~1–2 weeks of data) and Energy Dashboard wiring.
+- Energy Dashboard audit: already well configured (solar/gas/grid + device breakdown). No battery.
+- Pending in Phase 1: `statistics` baselines (after ~1–2 weeks of data); export **earnings**
+  (needs a fixed export rate or the Octopus export tariff configured).

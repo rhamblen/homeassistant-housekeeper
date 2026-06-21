@@ -53,7 +53,21 @@ delayed). Riemann integral of the live load gives a real-time running total.
 - `house_energy_total` accruing (0.05 kWh within ~1 min of creation).
 - `house_energy_daily` collecting, `next_reset` = next local midnight.
 
+## Energy Dashboard (audited 2026-06-21)
+The built-in Energy Dashboard was already well configured by the user (solar, gas, grid
+import + cost via Octopus rate sensors, solar forecast, and device breakdown for pool / Zappi
+EV / iBoost / washing machine). We did **not** add `house_energy_total` (would double-count
+the grid source). One correction made:
+- **Grid export source** changed from `sensor.myenergi_hub_20111566_grid_export_today`
+  (real-time CT estimate, daily reset) → `sensor.octopus_energy_electricity_21j0061481_2000017536930_current_total_export`
+  (metered, cumulative, consistent with the Octopus import source).
+- **Export earnings still not tracked** — `entity_energy_price_export` / `number_energy_price_export` /
+  `stat_compensation` are null and the Octopus `…_export_compensation` sensor is `unavailable`
+  (no export tariff/rate configured in the Octopus integration). Pending: set a fixed export rate
+  via `number_energy_price_export`, or configure the export tariff so the rate/compensation sensors populate.
+- No home battery (confirmed) — no battery source needed.
+
 ## Still pending in Phase 1
 - `statistics` baseline helpers (mean/stdev) — defer until meters accumulate ~1–2 weeks of history.
-- Wire `house_energy_total` + device meters into the **Energy Dashboard** (device consumption).
+- Export earnings (above) once a rate is provided/configured.
 - Optional: per-device `integration` helpers for any other power-only sensors.
