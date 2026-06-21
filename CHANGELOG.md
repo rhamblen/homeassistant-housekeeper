@@ -18,5 +18,12 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - ADR-0002 — repository as source of truth; YAML packages where version control matters.
 - `docs/ai-context.md` — cold-start orientation map for AI sessions working on this repo.
 
+### Phase 1 (Tier-1 consumption capture) — 2026-06-21
+- `sensor.house_power_now` — `min_max(sum)` of harvi generation + grid CT (live whole-house W).
+- `sensor.house_energy_total` — Riemann `integration` of `house_power_now` (whole-house kWh).
+- `utility_meter` daily + monthly on house energy, washing machine, pool, and hot water (iBoost):
+  `sensor.{house,washing_machine,pool,hot_water}_energy_{daily,monthly}`.
+- Build log: `docs/phases/phase-1-consumption-capture.md`.
+
 ### Notes
-- No HA configuration changes yet — Phase 0/1 implementation is the next step.
+- Pending in Phase 1: `statistics` baselines (after ~1–2 weeks of data) and Energy Dashboard wiring.

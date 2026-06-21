@@ -43,7 +43,9 @@ demand). Never ask the LLM to crunch raw numbers — see [ADR-0001](decisions/00
 |---|---|
 | `sensor.myenergi_harvi_11174172_power_ct_grid` | Live grid W (neg = export) |
 | `sensor.myenergi_harvi_11174172_power_ct_generation` | Live solar W |
-| `sensor.house_power_now` | **(Phase 1, not yet built)** = generation + grid_ct |
+| `sensor.house_power_now` | **Built (Phase 1)** — min_max(sum) of generation + grid (W) |
+| `sensor.house_energy_total` | **Built (Phase 1)** — Riemann integral of house_power_now (kWh) |
+| `sensor.{house,washing_machine,pool,hot_water}_energy_{daily,monthly}` | **Built (Phase 1)** — utility_meter cycles |
 | `sensor.pool_power_power` / `_energy` | Pool circuit (Shelly PM) |
 | `sensor.washing_machine_energy` / `_machine_state` / `_job_state` / `_completion_time` | Samsung washer (SmartThings); energy reliable, live W coarse |
 | `sensor.hot_water_diverted_energy_solar_iboost` | Immersion diversion (kWh) |
@@ -57,7 +59,7 @@ Full baseline in [inventory.md](inventory.md); design/hardware detail in [archit
 | Phase | Goal | Status |
 |------:|------|--------|
 | 0 | Foundations (Ollama connect, repo, exposed entities) | ☐ |
-| 1 | Consumption capture (utility_meter / integration / statistics helpers, `house_power_now`) | ☐ |
+| 1 | Consumption capture (utility_meter / integration / statistics helpers, `house_power_now`) | ◐ Tier-1 built |
 | 2 | AI narration (morning briefing, wash cost, energy review) | ☐ |
 | 3 | Anomaly watchdogs (garden leak, device offline, left-on) | ☐ |
 | 4 | Load fingerprinting / disaggregation | ☐ |

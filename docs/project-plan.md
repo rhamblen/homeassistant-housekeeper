@@ -20,7 +20,7 @@ See [ADR-0001](decisions/0001-llm-as-narrator-not-analyst.md).
 | Phase | Goal | Needs Ollama? | Status |
 |------:|------|:-------------:|--------|
 | 0 | Foundations: connect Ollama, scaffold repo, curate exposed entities | Set up | ☐ Not started |
-| 1 | Consumption capture: helpers that record per-device energy history | No | ☐ Not started |
+| 1 | Consumption capture: helpers that record per-device energy history | No | ◐ In progress — Tier-1 helpers built (see [phases/phase-1](phases/phase-1-consumption-capture.md)) |
 | 2 | AI narration: first scheduled reports (morning briefing, wash cost, energy review) | Yes | ☐ Not started |
 | 3 | Anomaly watchdogs: silent until something is wrong | Yes | ☐ Not started |
 | 4 | Load fingerprinting: learn what each device/room draws | Yes | ☐ Not started |
