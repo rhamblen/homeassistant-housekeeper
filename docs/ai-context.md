@@ -39,6 +39,7 @@ demand). Never ask the LLM to crunch raw numbers — see [ADR-0001](decisions/00
 | Ollama entry | `01KVNASEQNK3PXX03ZE7TX943D` (loaded). AI Task entity `ai_task.ollama_ai_task_llama3_1` (llama3.1, num_ctx 8192, keep_alive -1) |
 | Housekeeper dashboard | `/ai-housekeeper` (dashboard_id `ai_housekeeper`). AI snapshot via `input_text.ai_energy_snapshot` + `script.refresh_energy_snapshot`. **Flow** view = Sankey |
 | HACS dependency | `MindFreeze/ha-sankey-chart` (`custom:sankey-chart`) powers the Flow view. `sensor.other_baseline_today` = unmetered remainder |
+| Baseline (Phase 4 down-payment) | `sensor.house_baseline_power` (statistics value_min 24h) + `sensor.house_baseline_today`. Settling ~24-48h; not yet wired into Sankey. Disaggregation spec: `docs/phases/phase-4-load-disaggregation.md` |
 
 ## Tooling notes
 

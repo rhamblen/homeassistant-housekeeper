@@ -23,7 +23,7 @@ See [ADR-0001](decisions/0001-llm-as-narrator-not-analyst.md).
 | 1 | Consumption capture: helpers that record per-device energy history | No | ◐ In progress — Tier-1 helpers built (see [phases/phase-1](phases/phase-1-consumption-capture.md)) |
 | 2 | AI narration: first scheduled reports (morning briefing, wash cost, energy review) | Yes | ◐ In progress — Ollama connected, first narration working ([phases/phase-2](phases/phase-2-ai-narration.md)) |
 | 3 | Anomaly watchdogs: silent until something is wrong | Yes | ☐ Not started |
-| 4 | Load fingerprinting: learn what each device/room draws | Yes | ☐ Not started |
+| 4 | Load fingerprinting / disaggregation (NILM): split "Other" into real loads | engine = HA, narrate = LLM | ☐ Spec written ([phases/phase-4](phases/phase-4-load-disaggregation.md)); baseline helpers built |
 | 5 | Camera intelligence: vision-model smart notifications | Yes (vision) | ☐ Not started |
 | 6 | Conversational control + energy optimisation | Yes | ☐ Not started |
 | 7 | (Optional hardware) per-circuit / per-room metering | No | ☐ Not started |
