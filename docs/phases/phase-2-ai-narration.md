@@ -27,7 +27,17 @@ Accurate. Confirms HA → AI Task → Ollama → text round-trip.
   (ADR-0001). Documented in the prompt file.
 - Direct service/API calls do **not** render Jinja — pre-render for ad-hoc tests; automations render normally.
 
+## Housekeeper dashboard (built 2026-06-21)
+A new dashboard surfaces everything built so far and showcases the AI live.
+- **Dashboard:** "Housekeeper" at `/ai-housekeeper` (dashboard_id `ai_housekeeper`), sections view.
+- **AI snapshot, on demand:** `input_text.ai_energy_snapshot` (storage, 255 chars) +
+  `script.refresh_energy_snapshot` (calls `ai_task.generate_data`, strips wrapping quotes, writes
+  the text to the input_text). A markdown card shows it; a button runs the script.
+- **Cards:** gauge `house_power_now`; tiles for solar-now + used-today; per-device **Today** and
+  **This month** grids (house / washing machine / pool / hot water); 24h history graph (load + solar).
+- Verified: refresh button produces accurate text, e.g. *"Right now we're using 3.74 kW from the
+  grid. Today's usage is 14.16 kWh and our solar panels have generated 14.07 kWh so far!"*
+
 ## Next
 - Build the morning-briefing prompt + a scheduled automation (notify / Sonos TTS), test-fired before scheduling.
-- Add a Lovelace card to surface the latest snapshot text (ties into the planned Housekeeper dashboard).
 - Optionally add a `conversation` subentry for Phase 6 (control), and try `MrTails/Tails-assistant-ai` for Assist.

@@ -37,6 +37,7 @@ demand). Never ask the LLM to crunch raw numbers — see [ADR-0001](decisions/00
 | Cost / tariff | Octopus (half-hourly, ~1 day delayed; no Home Mini) |
 | Access to HA | via the `Home_Assistant` MCP tools in-session |
 | Ollama entry | `01KVNASEQNK3PXX03ZE7TX943D` (loaded). AI Task entity `ai_task.ollama_ai_task_llama3_1` (llama3.1, num_ctx 8192, keep_alive -1) |
+| Housekeeper dashboard | `/ai-housekeeper` (dashboard_id `ai_housekeeper`). AI snapshot via `input_text.ai_energy_snapshot` + `script.refresh_energy_snapshot` |
 
 ## Tooling notes
 

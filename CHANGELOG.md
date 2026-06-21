@@ -39,6 +39,9 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Build log: `docs/phases/phase-2-ai-narration.md`.
 - Lesson captured: pre-compute facts in HA (e.g. import/export direction) — never let the 8B model
   interpret signs/arithmetic (ADR-0001).
+- **Housekeeper dashboard** at `/ai-housekeeper`: live `house_power_now` gauge, per-device Today/
+  Month tiles, 24h trend, and an **AI snapshot** card (`input_text.ai_energy_snapshot` +
+  `script.refresh_energy_snapshot`) with a one-tap Refresh button.
 
 ### Notes
 - Energy Dashboard audit: already well configured (solar/gas/grid + device breakdown). No battery.
