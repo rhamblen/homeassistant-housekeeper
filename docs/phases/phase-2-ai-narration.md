@@ -55,6 +55,20 @@ Reworked the dashboard into a full energy-flow picture. myenergi already exposes
 - Caveat: immersion/per-device daily meters are partial for *today* (created this afternoon);
   myenergi grid/solar totals are full-day. All align from the next full day.
 
+### Sankey flow diagram (2026-06-21)
+Added a live energy-flow Sankey on a new **Flow** panel view of `/ai-housekeeper`.
+- **Card:** HACS `MindFreeze/ha-sankey-chart` (`custom:sankey-chart`) — installed via HACS,
+  resource auto-registered at `/hacsfiles/ha-sankey-chart/ha-sankey-chart.js`. **Requires a browser
+  hard-refresh to load the new card.** (Repo now depends on this HACS card — note in ai-context.)
+- **Structure (balances):** Grid import + Solar → House (+ Solar → Grid export); House →
+  Car charging / Immersion / Pool / Washing machine / **Other-baseline**.
+- New helper `sensor.other_baseline_today` = house_consumption − (car + immersion + pool + washing),
+  clamped ≥ 0, so the House node fully allocates instead of leaving a bare gap.
+- **Honest caveat:** "Other / baseline" is currently large (~45.6 kWh) because kitchen/ovens,
+  fridge/freezer and lighting are **not metered**, and today's per-device meters are partial. It
+  shrinks as metering improves (smart plugs / CT clamp, or the overnight-minimum baseline trick).
+- "Returned" renamed to **Grid export** per request.
+
 ## Next
 - Build the morning-briefing prompt + a scheduled automation (notify / Sonos TTS), test-fired before scheduling.
 - Optionally add a `conversation` subentry for Phase 6 (control), and try `MrTails/Tails-assistant-ai` for Assist.
