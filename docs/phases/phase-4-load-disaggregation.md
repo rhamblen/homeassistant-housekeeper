@@ -47,6 +47,32 @@ simultaneous changes confound attribution; the dryer is pure inference. The **ac
 per-circuit metering (Shelly EM / Pro 3EM, or Emporia Vue) on the kitchen ring + utility circuits —
 recommended for the loads that matter. Disaggregation is the "good enough, no hardware" path.
 
+## Extending to rooms / lights / device level
+The same edge-correlation generalises: every `light`/`switch` toggle is a power edge. On an
+**isolated** state change (no other tracked entity changed within a few seconds), capture
+ΔP and fold it into a **running average per entity** → a learned-watts **library**. Because
+entities carry an `area_id`, summing learned device watts by area yields **room-level**
+consumption. "Learning" = a deterministic capture loop (HA/n8n) maintaining the averages;
+the LLM narrates and helps disambiguate — it does not do the attribution.
+
+### Honest feasibility — the signal-to-noise wall
+Whole-house CT NILM works **well for big/medium distinct loads** (kettle, oven, dryer, pump,
+EV) and **poorly for small ones**. A 7 W LED toggling is essentially invisible against a house
+that swings kilowatts (fridge/freezer/pool/EV cycling) — its edge is below the noise floor, so
+passive learning of small lights is unreliable. Where small-device learning *does* work:
+- the change happens **in isolation at a quiet time**, or
+- the device (smart plug / smart switch) **reports its own power** — then it's exact, tier-1.
+
+So the realistic trajectory: learn the **big/medium** loads reliably from whole-house power;
+get **small/room** detail only from devices that self-meter or from per-circuit CT. Manage
+expectations — "every light" is not reliably learnable from one CT.
+
+### Pragmatic build order
+1. Capture loop records **isolated** edges → per-entity running-average library (starts broad, refines over weeks).
+2. Use any **self-reported power** (smart plugs, Shelly, etc.) directly — exact nodes.
+3. Roll learned device watts up by `area_id` → room estimates (clearly flagged estimated).
+4. Per-circuit CT (Shelly Pro 3EM / Emporia) for the rooms/circuits that matter → turns estimates into measurements.
+
 ## Inputs available
 - `sensor.house_power_now`, `sensor.house_baseline_power`.
 - Self-metered: `sensor.washing_machine_energy`, `sensor.pool_power_energy`,
