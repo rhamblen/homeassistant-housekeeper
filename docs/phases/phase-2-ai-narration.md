@@ -89,7 +89,8 @@ tab of **gauges (live W)**, mirroring the Sankey tiers:
 - Goes to (2nd tier): House load (`house_power_now`), Immersion (`hot_water_diverted_solar_iboost`),
   Car charging (`zappi …power_ct_internal_load`).
 - Measured loads: Pool (`pool_power_power`), Washing machine (`washing_machine_power`, coarse/laggy — Samsung).
-- Kitchen on/off only (Neff power-state, **no live watts**): Oven L/R, Hob, Dishwasher, Extractor — tiles, not gauges.
+- Kitchen on/off only (Neff power-state, **no live watts**): Oven L/R, Hob, Dishwasher, Extractor,
+  Warming tray L/R — tiles, not gauges.
 Gauges only exist where a live-watt sensor does; cooker/dishwasher/extractor stay on/off until metered.
 
 ## Next
