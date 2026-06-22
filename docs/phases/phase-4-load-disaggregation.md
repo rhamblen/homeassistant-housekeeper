@@ -1,7 +1,19 @@
 # Phase 4 — Load disaggregation (spec)
 
-**Status:** ☐ Spec only. Down-payment helpers built 2026-06-21 (`house_baseline_power`,
-`house_baseline_today`) — settling, not yet wired into the Sankey.
+**Status:** ◐ Spec + first slice. Down-payment helpers built 2026-06-21 (`house_baseline_power`,
+`house_baseline_today`). **Kitchen estimate v1 built 2026-06-22** — see below.
+
+## Kitchen estimate v1 (2026-06-22)
+`sensor.kitchen_estimated_power` (W) = sum of **assumed watts for each Neff appliance whose
+power-state == `…PowerState.On`**: Oven L/R 1500 each, Hob 1500, Dishwasher 1000, Extractor 120,
+Warming tray L/R 300 each (all tunable). Carved out of `house_other_now` (which now also subtracts
+kitchen) so the consumption stack still sums to the house total — added as a white/grey band on the
+24h Consumption chart (order: Other, Pool, **Kitchen**, Washing, Car, Immersion).
+- **It's an estimate, not measured** — state × fixed watts; ignores oven thermostat duty-cycle.
+- **Accuracy path (later):** the ovens expose **operation-state (Run)**, **current cavity
+  temperature**, **setpoint** and **fast-preheat** — use those to model real draw (preheat ~2 kW vs
+  maintain ~0.5 kW) instead of a flat assumption. Dishwasher has operation-state too.
+- No back-history (new sensor) — the band fills forward.
 
 Goal: split the Sankey's big **"Other / baseline"** block into real loads, so the diagram shows
 where the unmonitored consumption actually goes (kitchen, fridge/freezer, dryer, etc.).

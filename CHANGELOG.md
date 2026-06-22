@@ -6,6 +6,12 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **Kitchen estimate v1** (`sensor.kitchen_estimated_power`) — first load-disaggregation slice:
+  sum of assumed watts for Neff appliances that are "On". Carved out of `house_other_now`; added as
+  a white/grey band on the 24h Consumption chart. Estimate only (tunable); accuracy path noted
+  (oven operation-state/temperature) in the Phase 4 spec.
+
 ## [0.1.0] — 2026-06-22
 
 First working release: a local-LLM "home manager" foundation on Home Assistant — consumption
