@@ -83,6 +83,15 @@ sources), instead of children of House. New helper `sensor.house_general_today`
 Still inside "Other (unmonitored)": kitchen/ovens, fridge/freezer, lighting — they need the
 paused Phase 4 metering (or smart plugs) before they can be their own 3rd-wave nodes.
 
+**Live view (2026-06-22):** the real-time companion to the daily Sankey — a `/ai-housekeeper/live`
+tab of **gauges (live W)**, mirroring the Sankey tiers:
+- Sources: Solar, Grid import, Grid export.
+- Goes to (2nd tier): House load (`house_power_now`), Immersion (`hot_water_diverted_solar_iboost`),
+  Car charging (`zappi …power_ct_internal_load`).
+- Measured loads: Pool (`pool_power_power`), Washing machine (`washing_machine_power`, coarse/laggy — Samsung).
+- Kitchen on/off only (Neff power-state, **no live watts**): Oven L/R, Hob, Dishwasher, Extractor — tiles, not gauges.
+Gauges only exist where a live-watt sensor does; cooker/dishwasher/extractor stay on/off until metered.
+
 ## Next
 - Build the morning-briefing prompt + a scheduled automation (notify / Sonos TTS), test-fired before scheduling.
 - Optionally add a `conversation` subentry for Phase 6 (control), and try `MrTails/Tails-assistant-ai` for Assist.

@@ -52,6 +52,11 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   (browser hard-refresh needed) and new helper `sensor.other_baseline_today` (unmetered remainder).
   v1 card options: height 400, visible small nodes, units shown. Phase 4 metering paused; baseline
   sensors (`house_baseline_power/today`) keep learning for later.
+- Sankey **v1.1**: per-node colours; Immersion + Car moved into the 2nd wave (siblings of House),
+  via new helper `sensor.house_general_today`. Matches the original mockup.
+- **Live view** (`/ai-housekeeper/live`): real-time gauges (W) — sources, 2nd-tier (house/immersion/
+  car), measured loads (pool/washing), plus Neff kitchen on/off tiles (no live watts). Live companion
+  to the daily-total Sankey.
 
 ### Notes
 - Energy Dashboard audit: already well configured (solar/gas/grid + device breakdown). No battery.
