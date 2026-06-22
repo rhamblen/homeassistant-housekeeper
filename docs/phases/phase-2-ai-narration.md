@@ -96,9 +96,12 @@ Gauges only exist where a live-watt sensor does; cooker/dishwasher/extractor sta
 **History (24h) — ApexCharts (2026-06-22):** replaced the basic history-graph (Energy view) with two
 **stacked-area** charts à la the myenergi app (HACS `apexcharts-card`). **Both charts share the same
 total envelope = live consumption**, split by source vs by load:
-- **Supply — inbound:** Grid import (green) + **Solar self-used** (orange). Solar is `generation −
-  export` (live helper `sensor.solar_self_used_now`), NOT total generation — otherwise the supply
-  envelope would exceed consumption by the exported amount.
+- **Supply — inbound:** Grid import (green) + **Solar** (orange, `…power_ct_generation`). NOTE: we
+  use total generation here, not the `solar_self_used_now` helper, because the new helper has **no
+  24h back-history** (showed a blank band). Export is tiny, so generation ≈ self-used and the
+  envelopes still effectively match. Switch to `solar_self_used_now` once it has accumulated history.
+  - **History-gap rule:** newly-created derived/remainder sensors (`solar_self_used_now`,
+    `house_other_now`) only populate going forward — charts that depend on them fill in over ~24h.
 - **Consumption — by load:** Car / Immersion / Pool / Washing / **Other** (live helper
   `sensor.house_other_now` = `house_power_now` − the four measured loads). Neff kitchen (no watts) folds into Other.
 - Gotchas learned: mixed-scale series (kWh totals as `in_chart:false`) **broke stacking** — removed;
