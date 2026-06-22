@@ -93,15 +93,18 @@ tab of **gauges (live W)**, mirroring the Sankey tiers:
   Warming tray L/R — tiles, not gauges.
 Gauges only exist where a live-watt sensor does; cooker/dishwasher/extractor stay on/off until metered.
 
-**History (24h) — ApexCharts (2026-06-22) — ⚠️ WIP, PARKED:** the supply chart still doesn't render
-right (per Richard 2026-06-22); revisit. Likely angles: stacking/rendering of the area series, the
-new-sensor history gap, or the apexcharts-card stacked-area behaviour. Goal restated below.
-Replaced the basic history-graph (Energy view) with two
-**stacked-area** charts à la the myenergi app (HACS `apexcharts-card`). **Both charts share the same
-total envelope = live consumption**, split by source vs by load:
-- **Supply — inbound:** Grid import (green) + **Solar** (orange, `…power_ct_generation`). NOTE: we
-  use total generation here, not the `solar_self_used_now` helper, because the new helper has **no
-  24h back-history** (showed a blank band). Export is tiny, so generation ≈ self-used and the
+**History (24h) — ApexCharts (2026-06-22) — working (stacked columns):** two stacked charts à la the
+myenergi app (HACS `apexcharts-card`). **Root cause of the earlier "everything starts at zero":**
+ApexCharts stacks stacked-*area* series by data **index**, needing identical x-timestamps — but the
+myenergi sensors log at different moments, so the areas drew from the baseline (overlaid). **Fix:
+`type: column` + `stacked: true`** (15-min buckets) — columns stack by category regardless of
+timestamp alignment. **Future option for smooth stacked *areas*:** sample the four readings (grid,
+solar, car, immersion) on one shared clock into timestamp-aligned helpers (trigger-based template
+sensors / an every-minute automation), then areas will stack too.
+**Both charts share the same total envelope = live consumption**, split by source vs by load:
+- **Supply — inbound:** **Solar** (orange, `…power_ct_generation`) at the base + **Grid import**
+  (green) on top. NOTE: we use total generation, not the `solar_self_used_now` helper, because the
+  new helper has **no 24h back-history** (showed a blank band). Export is tiny, so generation ≈ self-used and the
   envelopes still effectively match. Switch to `solar_self_used_now` once it has accumulated history.
   - **History-gap rule:** newly-created derived/remainder sensors (`solar_self_used_now`,
     `house_other_now`) only populate going forward — charts that depend on them fill in over ~24h.
