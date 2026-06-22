@@ -93,6 +93,14 @@ tab of **gauges (live W)**, mirroring the Sankey tiers:
   Warming tray L/R — tiles, not gauges.
 Gauges only exist where a live-watt sensor does; cooker/dishwasher/extractor stay on/off until metered.
 
+**History (24h) — ApexCharts (2026-06-22):** replaced the basic history-graph (Energy view) with two
+**stacked-area** charts à la the myenergi app (HACS `apexcharts-card`):
+- **Supply — inbound:** Grid import (orange) + Solar (green) stacked; today's kWh totals in the header.
+- **Consumption — by load:** Car / Immersion / Pool / Washing / **Other** stacked, colour-matched.
+New live helper `sensor.house_other_now` (= `house_power_now` − car − immersion − pool − washing)
+so the consumption stack sums to the full house load. Loads without a live-watt sensor (Neff kitchen)
+fold into "Other".
+
 ## Next
 - Build the morning-briefing prompt + a scheduled automation (notify / Sonos TTS), test-fired before scheduling.
 - Optionally add a `conversation` subentry for Phase 6 (control), and try `MrTails/Tails-assistant-ai` for Assist.
