@@ -114,6 +114,40 @@ sensors / an every-minute automation), then areas will stack too.
   stacking needs all series sharing the same 5-min `group_by` buckets. kWh totals to be re-added as a
   separate tiles row, not mixed into the chart.
 
+### Evening charge advisory (2026-06-22)
+The first **proactive** brief and the first step from narration toward advice (→ Phase 6). A nightly
+*"should I charge the Audi tonight?"* suggestion — **advisory only**, the human decides (ADR-0001).
+- **Inputs (all already in HA):** Audi Q4 e-tron integration — `…_state_of_charge` (83% at build),
+  `…_target_state_of_charge`, `binary_sensor.…_plug_state`, `device_tracker.…_position`, `…_range`;
+  `sensor.energy_production_tomorrow` (Forecast.Solar — weather + daylight already baked in);
+  Octopus `…_current_rate`; tomorrow's diary from `calendar.richard` + `calendar.ruth`.
+- **Decision skeleton** (encoded in the prompt, HA supplies facts): not-home → stay quiet;
+  home & unplugged → "plug in if you want a charge"; SoC <40% → charge; 40–60% → only if the diary
+  shows a long drive; >60% → skip unless a big trip; strong-solar overlay → "let solar do it by day".
+  The fuzzy "is tomorrow a long drive?" step is the LLM's job — safe because it only advises.
+- **Pieces:** `prompts/charge-advisory.md`; helper `input_text.ai_charge_advisory` (255);
+  `script.charge_advisory_generate` (calendar.get_events → fact block → `ai_task.generate_data` →
+  strip quotes → write helper; button-testable like `refresh_energy_snapshot`);
+  `automation.evening_charge_advisory` (time 21:00 → script → Slack + mobile);
+  new **"Charge tonight?"** section on the Energy view of `/ai-housekeeper`.
+- **Delivery — Slack was already wired.** The HA **Slack integration** (title "Basingbourne") was
+  already configured; its notify service is `notify.basingbourne` (not obviously "slack" by name —
+  found via `sensor.home_assistant_slack` + the `slack`-domain config entry). Posts to
+  `#home-assistant` (`target: ["#home-assistant"]`). Plus `notify.mobile_app_rich_iphone_15`. No
+  token setup needed. **Trap:** `notify` renders templates in the automation but NOT in a direct
+  service-call test — an ad-hoc test posts the literal `{{ … }}`; pre-render for manual checks.
+- **Verified end-to-end (warm model):** script run wrote *"Car is at home but not plugged in, with a
+  battery level of 83%. Normally, there's no need to charge tonight as you have ample range."* —
+  correct call, read the diary as no long drive, respected the not-plugged guard.
+- **Gotchas:** `input_text` caps at 255 chars → prompt asks for ≤240 and the script truncates
+  defensively (raw test-fire ran ~360). The service `calendar.get_events` returns `start`/`end` as
+  ISO **strings** (the MCP tool returns dicts) — template parses `start[11:16]` for the time.
+  `calendar.get_events` needs `response_variable`; templating is in `data.*`/`variables` only (native
+  `time` trigger), so it stays inside the best-practices guidance.
+
 ## Next
-- Build the morning-briefing prompt + a scheduled automation (notify / Sonos TTS), test-fired before scheduling.
+- **Morning recap** — yesterday's energy + cost (Octopus `previous_accumulative_*`) + today's solar
+  outlook; same pipeline, `time` trigger ~07:00. (Slack path now proven — reuse `notify.basingbourne`.)
+- **Phase 6 two-way** — the Slack integration is in place, so a future Slack slash-command / Events
+  path can call HA → Ollama → reply, turning these one-way briefs into a conversation.
 - Optionally add a `conversation` subentry for Phase 6 (control), and try `MrTails/Tails-assistant-ai` for Assist.

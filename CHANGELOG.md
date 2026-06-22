@@ -7,6 +7,15 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **Evening charge advisory** — first proactive AI brief. Nightly *"should I charge the Audi
+  tonight?"* suggestion: HA gathers the facts (Audi SoC / plug / location, tomorrow's solar
+  forecast, tomorrow's diary from `calendar.richard` + `calendar.ruth`, Octopus unit rate), the
+  LLM phrases a 1–2 sentence suggestion — **advisory only**, no charging action (ADR-0001).
+  Pieces: `prompts/charge-advisory.md`; `input_text.ai_charge_advisory`;
+  `script.charge_advisory_generate` (button-testable); `automation.evening_charge_advisory`
+  (21:00 → script → **Slack `#home-assistant`** via `notify.basingbourne` + mobile push
+  `notify.mobile_app_rich_iphone_15`); a **"Charge tonight?"** section on `/ai-housekeeper`.
+  Verified end-to-end 2026-06-22 — the existing Slack integration was reused, no token setup needed.
 - **Kitchen estimate v1** (`sensor.kitchen_estimated_power`) — first load-disaggregation slice:
   sum of assumed watts for Neff appliances that are "On". Carved out of `house_other_now`; added as
   a white/grey band on the 24h Consumption chart. Estimate only (tunable); accuracy path noted
