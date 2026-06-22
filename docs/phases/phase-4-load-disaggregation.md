@@ -10,10 +10,19 @@ Warming tray L/R 300 each (all tunable). Carved out of `house_other_now` (which 
 kitchen) so the consumption stack still sums to the house total — added as a white/grey band on the
 24h Consumption chart (order: Other, Pool, **Kitchen**, Washing, Car, Immersion).
 - **It's an estimate, not measured** — state × fixed watts; ignores oven thermostat duty-cycle.
-- **Accuracy path (later):** the ovens expose **operation-state (Run)**, **current cavity
-  temperature**, **setpoint** and **fast-preheat** — use those to model real draw (preheat ~2 kW vs
-  maintain ~0.5 kW) instead of a flat assumption. Dishwasher has operation-state too.
 - No back-history (new sensor) — the band fills forward.
+
+### Kitchen accuracy v2 — learn real watts from the power step (confirmed approach)
+Replace the fixed assumptions with **measured** draw: when a Neff appliance switches to `…PowerState.On`,
+snapshot `house_power_now` **just before** the transition and again **a few seconds after** it settles;
+the **delta (after − before) = that appliance's real power**. The matching **drop at power-off** confirms it.
+Bank that delta each time and **average over many switch-ons** to build a learned per-appliance wattage
+that supersedes the estimate.
+- **Only clean/isolated steps count** — discard any sample where another tracked load (EV, immersion,
+  pool, etc.) changed within the same few seconds, else the delta is contaminated. Hence learn-over-time.
+- **Ovens modulate** — the on-delta is the *element* peak (~2 kW); combine with cavity-temperature /
+  operation-state (both exposed) to model heating vs coasting for energy (not just peak power).
+- Deterministic capture loop (HA/n8n); LLM narrates only (ADR-0001).
 
 Goal: split the Sankey's big **"Other / baseline"** block into real loads, so the diagram shows
 where the unmonitored consumption actually goes (kitchen, fridge/freezer, dryer, etc.).
