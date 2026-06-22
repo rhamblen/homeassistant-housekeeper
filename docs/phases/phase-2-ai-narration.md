@@ -94,12 +94,16 @@ tab of **gauges (live W)**, mirroring the Sankey tiers:
 Gauges only exist where a live-watt sensor does; cooker/dishwasher/extractor stay on/off until metered.
 
 **History (24h) — ApexCharts (2026-06-22):** replaced the basic history-graph (Energy view) with two
-**stacked-area** charts à la the myenergi app (HACS `apexcharts-card`):
-- **Supply — inbound:** Grid import (orange) + Solar (green) stacked; today's kWh totals in the header.
-- **Consumption — by load:** Car / Immersion / Pool / Washing / **Other** stacked, colour-matched.
-New live helper `sensor.house_other_now` (= `house_power_now` − car − immersion − pool − washing)
-so the consumption stack sums to the full house load. Loads without a live-watt sensor (Neff kitchen)
-fold into "Other".
+**stacked-area** charts à la the myenergi app (HACS `apexcharts-card`). **Both charts share the same
+total envelope = live consumption**, split by source vs by load:
+- **Supply — inbound:** Grid import (green) + **Solar self-used** (orange). Solar is `generation −
+  export` (live helper `sensor.solar_self_used_now`), NOT total generation — otherwise the supply
+  envelope would exceed consumption by the exported amount.
+- **Consumption — by load:** Car / Immersion / Pool / Washing / **Other** (live helper
+  `sensor.house_other_now` = `house_power_now` − the four measured loads). Neff kitchen (no watts) folds into Other.
+- Gotchas learned: mixed-scale series (kWh totals as `in_chart:false`) **broke stacking** — removed;
+  stacking needs all series sharing the same 5-min `group_by` buckets. kWh totals to be re-added as a
+  separate tiles row, not mixed into the chart.
 
 ## Next
 - Build the morning-briefing prompt + a scheduled automation (notify / Sonos TTS), test-fired before scheduling.
