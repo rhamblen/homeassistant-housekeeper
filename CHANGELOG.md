@@ -6,60 +6,47 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Added
-- Repository scaffold: README, MIT license, changelog, `.gitignore`.
-- `docs/project-plan.md` — 8-phase roadmap (0–7) with goals, deliverables, rationale,
-  and a live status table.
-- `docs/architecture.md` — analyst/narrator design, hardware & network, model choices,
-  data-source notes.
-- `docs/inventory.md` — baseline of what's already metered (captured 2026-06-21).
-- `docs/release-process.md` — versioning & GitHub release workflow.
-- ADR-0001 — LLM narrates, Home Assistant analyses.
-- ADR-0002 — repository as source of truth; YAML packages where version control matters.
-- `docs/ai-context.md` — cold-start orientation map for AI sessions working on this repo.
+## [0.1.0] — 2026-06-22
 
-### Phase 1 (Tier-1 consumption capture) — 2026-06-21
-- `sensor.house_power_now` — `min_max(sum)` of harvi generation + grid CT (live whole-house W).
-- `sensor.house_energy_total` — Riemann `integration` of `house_power_now` (whole-house kWh).
-- `utility_meter` daily + monthly on house energy, washing machine, pool, and hot water (iBoost):
-  `sensor.{house,washing_machine,pool,hot_water}_energy_{daily,monthly}`.
-- Build log: `docs/phases/phase-1-consumption-capture.md`.
+First working release: a local-LLM "home manager" foundation on Home Assistant — consumption
+capture, AI narration, and the Housekeeper dashboard (energy-flow Sankey, live gauges, history).
+
+### Added — project & docs
+- Repository scaffold: README, MIT license, changelog, `.gitignore`.
+- `docs/project-plan.md` (8-phase roadmap + status table), `docs/architecture.md`,
+  `docs/inventory.md`, `docs/release-process.md`, `docs/ai-context.md`.
+- ADR-0001 (LLM narrates, HA analyses) and ADR-0002 (repo as source of truth).
+- Phase build logs: `docs/phases/phase-1-…`, `phase-2-…`, and the `phase-4-load-disaggregation.md` spec.
+
+### Added — Phase 1: consumption capture
+- `sensor.house_power_now` (min_max sum of harvi generation + grid), `sensor.house_energy_total`
+  (Riemann integration), and `utility_meter` daily+monthly for house / washing machine / pool / hot water.
+
+### Added — Phase 2: AI narration
+- **Ollama** integration + **AI Task** agent `ai_task.ollama_ai_task_llama3_1` (llama3.1, num_ctx 8192).
+- `prompts/energy-snapshot.md`; `input_text.ai_energy_snapshot` + `script.refresh_energy_snapshot`.
+
+### Added — Housekeeper dashboard (`/ai-housekeeper`)
+- **Energy** view: live gauge, AI-snapshot card, energy in/out + solar-routing + loads tiles
+  (helpers `house_consumption_today`, `solar_unused_today`, `solar_self_used_today`).
+- **Flow** view: coloured Sankey (HACS `ha-sankey-chart`) — Grid + Solar → House / Immersion / Car
+  / Grid export → loads; helpers `house_general_today`, `other_baseline_today`.
+- **Live** view: real-time W gauges (car 7 kW, immersion/washing 4 kW) + Neff kitchen on/off tiles
+  with icons; helper `house_other_now`.
+- **History (24h)**: two ApexCharts **stacked-column** charts sharing one envelope — Supply
+  (solar + grid) and Consumption-by-load (other/pool/washing/car/immersion); helper `solar_self_used_now`.
+
+### Added — Phase 4 (down-payment, paused)
+- Disaggregation spec; baseline learners `sensor.house_baseline_power` / `house_baseline_today`.
 
 ### Changed
-- Energy Dashboard: grid **export** source switched from the myenergi daily-reset CT estimate
-  to the metered Octopus export sensor (`…_current_total_export`), consistent with the import source.
-- Docs: model choices reconciled to the **actually-installed** Ollama models (`llama3.1:8b` for
-  narration/control, `minicpm-v` for vision); `qwen2.5:14b` reframed as an optional later upgrade.
-
-### Added (Phase 2 — first narration working)
-- Connected the **Ollama** integration (entry `01KVNASEQNK3PXX03ZE7TX943D`).
-- Created **AI Task** agent `ai_task.ollama_ai_task_llama3_1` (model `llama3.1`, `num_ctx` 8192,
-  `keep_alive` -1).
-- `prompts/energy-snapshot.md` — first AI Task narration prompt, test-fired live and verified accurate.
-- Build log: `docs/phases/phase-2-ai-narration.md`.
-- Lesson captured: pre-compute facts in HA (e.g. import/export direction) — never let the 8B model
-  interpret signs/arithmetic (ADR-0001).
-- **Housekeeper dashboard** at `/ai-housekeeper`: live `house_power_now` gauge, per-device Today/
-  Month tiles, 24h trend, and an **AI snapshot** card (`input_text.ai_energy_snapshot` +
-  `script.refresh_energy_snapshot`) with a one-tap Refresh button.
-- **Energy-flow layout**: sections for Energy in & out, Solar routing (generated → self-used /
-  unused → returned / immersion), and Loads (incl. car charging). New derived template helpers
-  `sensor.house_consumption_today`, `sensor.solar_unused_today`, `sensor.solar_self_used_today`
-  (full-day, off the native myenergi `…_today` totals). Routing balances: generated = self-used +
-  immersion + export.
-- **Sankey flow diagram (v1)** on a new **Flow** view: Grid + Solar → House → Car / Immersion /
-  Pool / Washing / Other (unmonitored) (+ Solar → Grid export). Uses HACS `ha-sankey-chart`
-  (browser hard-refresh needed) and new helper `sensor.other_baseline_today` (unmetered remainder).
-  v1 card options: height 400, visible small nodes, units shown. Phase 4 metering paused; baseline
-  sensors (`house_baseline_power/today`) keep learning for later.
-- Sankey **v1.1**: per-node colours; Immersion + Car moved into the 2nd wave (siblings of House),
-  via new helper `sensor.house_general_today`. Matches the original mockup.
-- **Live view** (`/ai-housekeeper/live`): real-time gauges (W) — sources, 2nd-tier (house/immersion/
-  car), measured loads (pool/washing), plus Neff kitchen on/off tiles (no live watts). Live companion
-  to the daily-total Sankey.
+- Energy Dashboard grid **export** source → metered Octopus export (consistent with import).
+- Model choices reconciled to the **installed** Ollama models (`llama3.1`, `minicpm-v`).
 
 ### Notes
-- Energy Dashboard audit: already well configured (solar/gas/grid + device breakdown). No battery.
-- Pending in Phase 1: `statistics` baselines (after ~1–2 weeks of data); **FIT income** modelling
-  (deferred — Richard is on the Feed-in Tariff; needs a dedicated generation + export income helper,
-  not the dashboard export-price field).
+- **Immersion** is a real measurement via the **harvi CT3 clamp** through a template (not a dedicated
+  iBoost integration, not the Zappi) — see `docs/inventory.md`.
+- ApexCharts stacked **areas** need timestamp-aligned series; we used **columns** to sidestep that.
+  Smooth areas later via one-clock "aligned" sampling helpers.
+- Deferred / pending: `statistics` baselines settling; **FIT income** modelling; Phase 4 metering
+  (kitchen/fridge/lighting still inside "Other"); curating exposed entities for conversational control.

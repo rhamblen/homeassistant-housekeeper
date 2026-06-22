@@ -46,9 +46,10 @@ CHANGELOG.md
 
 ## Status
 
-Phase 0 (foundations). See the status table in
-[docs/project-plan.md](docs/project-plan.md). Built and documented with
-[Claude Code](https://claude.com/claude-code).
+**v0.1.0** — working foundation: consumption capture (Phase 1), AI narration (Phase 2), and the
+Housekeeper dashboard (energy-flow Sankey, live gauges, 24h history). Load disaggregation (Phase 4)
+is specced and paused. See the status table in [docs/project-plan.md](docs/project-plan.md) and the
+[CHANGELOG](CHANGELOG.md). Built and documented with [Claude Code](https://claude.com/claude-code).
 
 ## Why publish this
 
