@@ -16,6 +16,9 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   (21:00 → script → **Slack `#home-assistant`** via `notify.basingbourne` + mobile push
   `notify.mobile_app_rich_iphone_15`); a **"Charge tonight?"** section on `/ai-housekeeper`.
   Verified end-to-end 2026-06-22 — the existing Slack integration was reused, no token setup needed.
+- **24h history refinements** — added the Kitchen estimate band; moved Immersion to the base so its
+  negative noise renders below zero; added **Grid export** as a positive consumption band so both
+  charts balance to one envelope (`supply = generation + import` = `consumption = loads + export`).
 - **Kitchen estimate v1** (`sensor.kitchen_estimated_power`) — first load-disaggregation slice:
   sum of assumed watts for Neff appliances that are "On". Carved out of `house_other_now`; added as
   a white/grey band on the 24h Consumption chart. Estimate only (tunable); accuracy path noted
