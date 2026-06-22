@@ -93,7 +93,10 @@ tab of **gauges (live W)**, mirroring the Sankey tiers:
   Warming tray L/R — tiles, not gauges.
 Gauges only exist where a live-watt sensor does; cooker/dishwasher/extractor stay on/off until metered.
 
-**History (24h) — ApexCharts (2026-06-22):** replaced the basic history-graph (Energy view) with two
+**History (24h) — ApexCharts (2026-06-22) — ⚠️ WIP, PARKED:** the supply chart still doesn't render
+right (per Richard 2026-06-22); revisit. Likely angles: stacking/rendering of the area series, the
+new-sensor history gap, or the apexcharts-card stacked-area behaviour. Goal restated below.
+Replaced the basic history-graph (Energy view) with two
 **stacked-area** charts à la the myenergi app (HACS `apexcharts-card`). **Both charts share the same
 total envelope = live consumption**, split by source vs by load:
 - **Supply — inbound:** Grid import (green) + **Solar** (orange, `…power_ct_generation`). NOTE: we
