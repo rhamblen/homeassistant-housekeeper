@@ -17,7 +17,7 @@ live system. Update as integrations change.
 | Pool heat pump | integration | `sensor.pool_heat_pump_power` (W) | Live |
 | EV charger | myenergi zappi | `sensor.myenergi_zappi_20894508_power_ct_internal_load` | Charge mode Eco+ |
 | EV (car) | Audi connect | `sensor.audi_q4_e_tron_charging_power` | |
-| Hot water diversion | iBoost / iBoost solar | `sensor.hot_water_diverted_energy_solar_iboost` (kWh) | Solar surplus → immersion |
+| Hot water diversion (immersion) | **harvi CT3 clamp** via template (NOT a real iBoost integration, NOT the Zappi) | `sensor.hot_water_diverted_solar_iboost` (W) = `-1 × ..._power_ct_storage`; `sensor.hot_water_diverted_energy_solar_iboost` (kWh) | CT3 ("storage", no battery) is clamped on the immersion diverter. Real CT measurement, just surfaced via template. Sub-meter of a load already in `house_power_now` (gen+grid) — do NOT add CT3 as a source. Verify clamp by running immersion → should jump to ~3 kW. |
 
 ## Water
 - **Garden water meter**: `sensor.garden_water_meter_flow_rate` (L/h), `_daily_consumption`,
