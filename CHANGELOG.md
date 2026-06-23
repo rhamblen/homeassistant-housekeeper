@@ -41,22 +41,12 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   a white/grey band on the 24h Consumption chart. Estimate only (tunable); accuracy path noted
   (oven operation-state/temperature) in the Phase 4 spec.
 
-### Fixed
-- **"Other" collapsing to zero overnight** — root cause: `house_other_now` and
-  `other_baseline_today` were subtracting pool power/energy from the house supply total,
-  but the pool circuit is on a **separate supply** (Shelly PM, not harvi). Pool was never
-  in `house_power_now`. Removed pool from both template subtractions; pool is now shown as
-  its own independent Shelly measurement in the history chart, Live gauges and Energy tiles.
-  Sankey updated: Pool removed from House children (it isn't fed by House); Flow Sankey now
-  balances correctly as `Grid import + Solar → House / Immersion / Car / Grid export →
-  Washing / Other`. Maths verified live 2026-06-23.
-
 ### Notes / open issues
-- **Pool supply topology clarified (2026-06-23)** — the pool circuit (Shelly PM) is on a
-  **separate supply** from the house harvi CT clamp. Octopus + harvi measure house only; pool
-  never appears in `house_power_now`. "Other" correctly approaches zero overnight (house standby
-  is mostly always-on servers/fridges via the house meter; pool heat pump is off that meter).
-  `sensor.pool_heat_pump_power` = Shelly − 252 W pump − 26 W lights (template already existed).
+- **Pool sub-metering (2026-06-23)** — pool circuit is on the **house supply** (harvi sees it);
+  the Shelly PM sub-meters the pool circuit specifically (heat pump + pump + lights), the same
+  way SmartThings sub-meters the washing machine. `pool_power_power` is correctly subtracted in
+  `house_other_now` and `other_baseline_today`. Pool is a child of House in the Sankey.
+  `sensor.pool_heat_pump_power` = Shelly − 252 W pump − 26 W lights.
 - **Pool heat pump COP — blocked** — Tuya exposes inlet water temp, compressor current, coil
   temps but no outlet temp and no flow meter. COP method agreed: pool volume × 4.186 × ΔT_pool
   ÷ heat-pump kWh over a session. Unblock paths: (a) outlet probe + flow meter hardware;

@@ -114,29 +114,6 @@ sensors / an every-minute automation), then areas will stack too.
   stacking needs all series sharing the same 5-min `group_by` buckets. kWh totals to be re-added as a
   separate tiles row, not mixed into the chart.
 
-### Pool supply topology fix (2026-06-23) — root cause of "Other drops to zero overnight"
-The pool circuit (Shelly PM) is on a **separate supply from the house** — the harvi CT clamp
-and Octopus meter only see the house main board; the pool heat pump, pump and lights are fed
-from a separate sub-board measured only by the Shelly. This meant `house_other_now` was
-subtracting `pool_power_power` from `house_power_now` even though pool was never in that total
-— driving "Other" below zero overnight when the pool heat pump ran.
-
-**Three fixes applied (2026-06-23):**
-1. **`sensor.house_other_now`** — removed `pool_power_power` from the subtraction.
-   New formula: `house_power_now − car − immersion − washing_machine − kitchen_estimated`.
-   Pool in the history chart stays as its own Shelly band (separate supply, not derived).
-2. **`sensor.other_baseline_today`** — removed `pool_energy_daily` from the subtraction.
-   New formula: `house_consumption_today − car − immersion − washing`. Sankey balances again.
-3. **Sankey (Flow tab)** — removed Pool as a child of House (it was never fed by House).
-   Pool remains visible on the Live gauges, History chart, and Energy-tab tiles. The Flow
-   Sankey now shows only the house supply flow, which balances correctly:
-   `Grid import + Solar → House / Immersion / Car / Grid export → Washing / Other`.
-
-**Verified live:** `house_other_now` = 1496 W when house = 1490 W (no other loads on) ✓;
-daily: 19.85 kWh Other = 20.96 kWh total − 1.11 immersion = 19.85 ✓.
-
-**Pool standalone:** 252 W live / 14.49 kWh today, entirely on its own supply. Never collapses Other again.
-
 ### History chart refinements (2026-06-22, later)
 - **Kitchen band added** — `sensor.kitchen_estimated_power` (Phase 4 v1 estimate) carved out of
   `house_other_now`, white/grey, in order Other · Pool · Kitchen · Washing · Car.

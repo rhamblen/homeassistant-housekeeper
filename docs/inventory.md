@@ -13,8 +13,8 @@ live system. Update as integrations change.
 | Whole-house grid | myenergi harvi | `sensor.myenergi_harvi_11174172_power_ct_grid` (W, live), `..._power_ct_generation`, `..._power_ct_storage` | Real-time; neg grid = export |
 | myenergi hub | myenergi | `sensor.myenergi_hub_20111566_power_import` / `_export` / `_generation` | Live |
 | Washing machine | SmartThings (Samsung) | `sensor.washing_machine_energy` (kWh), `_machine_state`, `_job_state`, `_completion_time` | Energy reliable; live W coarse |
-| Pool circuit | Shelly PM | `sensor.pool_power_power` (W), `sensor.pool_power_energy` (kWh) | **SEPARATE supply from the house meter** — the harvi CT clamp (and Octopus) do NOT measure pool. Shelly measures the pool sub-board: heat pump + pump + lights. |
-| Pool heat pump | template (derived from Shelly) | `sensor.pool_heat_pump_power` (W) = `max(0, pool_power_power − 252 − (26 if lights on))` | Subtracts pool pump (252 W fixed) and lights (26 W when on). Confirmed topology 2026-06-23. |
+| Pool circuit | Shelly PM (sub-meter) | `sensor.pool_power_power` (W), `sensor.pool_power_energy` (kWh) | Pool is **part of the house supply** (harvi sees it). Shelly sub-meters the pool circuit only — heat pump + pump + lights. Sub-metered load, subtracted from `house_other_now` and `other_baseline_today`. |
+| Pool heat pump | template (derived from Shelly) | `sensor.pool_heat_pump_power` (W) = `max(0, pool_power_power − 252 − (26 if lights on))` | Subtracts pool pump (252 W fixed) and lights (26 W when on). |
 | EV charger | myenergi zappi | `sensor.myenergi_zappi_20894508_power_ct_internal_load` | Charge mode Eco+ |
 | EV (car) | Audi connect | `sensor.audi_q4_e_tron_charging_power` | |
 | Hot water diversion (immersion) | **harvi CT3 clamp** via template (NOT a real iBoost integration, NOT the Zappi) | `sensor.hot_water_diverted_solar_iboost` (W) = `-1 × ..._power_ct_storage`; `sensor.hot_water_diverted_energy_solar_iboost` (kWh) | CT3 ("storage", no battery) is clamped on the immersion diverter. Real CT measurement, just surfaced via template. Sub-meter of a load already in `house_power_now` (gen+grid) — do NOT add CT3 as a source. Verify clamp by running immersion → should jump to ~3 kW. |
@@ -50,6 +50,9 @@ live system. Update as integrations change.
 - Mobile `notify`: Richard's iPhone(s), iPads. Sonos (Beam, etc.) + Alexa dots for TTS.
 
 ## Pool heat pump COP — blocked, open issue
+
+Pool is part of the house supply; the Shelly PM sub-meters the pool circuit (heat pump + pump
++ lights). `sensor.pool_heat_pump_power` = Shelly − 252 W pump − 26 W lights (when on).
 
 **Method (agreed 2026-06-23):** energy-balance over a heating session —
 `COP = (pool_volume_L × 4.186 × pool_temp_rise_°C) ÷ heat_pump_kWh_session`.
