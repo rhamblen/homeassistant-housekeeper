@@ -41,6 +41,16 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   a white/grey band on the 24h Consumption chart. Estimate only (tunable); accuracy path noted
   (oven operation-state/temperature) in the Phase 4 spec.
 
+### Fixed
+- **"Other" collapsing to zero overnight** — root cause: `house_other_now` and
+  `other_baseline_today` were subtracting pool power/energy from the house supply total,
+  but the pool circuit is on a **separate supply** (Shelly PM, not harvi). Pool was never
+  in `house_power_now`. Removed pool from both template subtractions; pool is now shown as
+  its own independent Shelly measurement in the history chart, Live gauges and Energy tiles.
+  Sankey updated: Pool removed from House children (it isn't fed by House); Flow Sankey now
+  balances correctly as `Grid import + Solar → House / Immersion / Car / Grid export →
+  Washing / Other`. Maths verified live 2026-06-23.
+
 ### Notes / open issues
 - **Pool supply topology clarified (2026-06-23)** — the pool circuit (Shelly PM) is on a
   **separate supply** from the house harvi CT clamp. Octopus + harvi measure house only; pool
