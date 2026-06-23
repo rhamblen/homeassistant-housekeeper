@@ -7,6 +7,23 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- **Irrigation plan (daily-summary section)** — `prompts/irrigation-plan.md`: an HA-rendered fact
+  block for the morning briefing listing what's due to be watered over the **next 24 h** (zones,
+  start times, durations across the two garden schedules), flagging **today's** runs that will be
+  **skipped because of rain**, reporting an earlier-today run that **was stopped because of rain**,
+  and giving **tomorrow's** runs a forecast-based verdict (Met Office daily precip probability vs
+  `garden_rain_threshold`) since tomorrow's cancel isn't decided yet. Pure narration over existing
+  helpers (the `garden2_{a,b}_*` schedule helpers, the `switch.tap_*` zone valves, the
+  `garden_rain_cancel` / `garden_winter_shutdown` gates, `weather.met_office_fleet`) — no new HA
+  objects, no schedule logic in the LLM (ADR-0001). Verified live + scenarios via `ha_eval_template`
+  (2026-06-23).
+- **Irrigation card live on the Housekeeper Prompts tab** — the irrigation plan is now shown as a
+  deterministic `markdown` card (rendered by HA, not narrated by the LLM — it's structured data, and
+  this guarantees zone names are never dropped). New supporting objects:
+  `input_number.garden_rain_prob_tomorrow` + `automation.garden_forecast_rain_recorder` (every 30 min
+  / on start: `weather.get_forecasts` daily → tomorrow's precip probability), letting the card show a
+  rain verdict for tomorrow's runs without an LLM round-trip. Added as the third section on the
+  **Prompts** tab with a **Refresh forecast** button.
 - **Evening charge advisory** — first proactive AI brief. Nightly *"should I charge the Audi
   tonight?"* suggestion: HA gathers the facts (Audi SoC / plug / location, tomorrow's solar
   forecast, tomorrow's diary from `calendar.richard` + `calendar.ruth`, Octopus unit rate), the
@@ -23,6 +40,33 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   sum of assumed watts for Neff appliances that are "On". Carved out of `house_other_now`; added as
   a white/grey band on the 24h Consumption chart. Estimate only (tunable); accuracy path noted
   (oven operation-state/temperature) in the Phase 4 spec.
+
+### Notes / open issues
+- **Pool supply topology clarified (2026-06-23)** — the pool circuit (Shelly PM) is on a
+  **separate supply** from the house harvi CT clamp. Octopus + harvi measure house only; pool
+  never appears in `house_power_now`. "Other" correctly approaches zero overnight (house standby
+  is mostly always-on servers/fridges via the house meter; pool heat pump is off that meter).
+  `sensor.pool_heat_pump_power` = Shelly − 252 W pump − 26 W lights (template already existed).
+- **Pool heat pump COP — blocked** — Tuya exposes inlet water temp, compressor current, coil
+  temps but no outlet temp and no flow meter. COP method agreed: pool volume × 4.186 × ΔT_pool
+  ÷ heat-pump kWh over a session. Unblock paths: (a) outlet probe + flow meter hardware;
+  (b) use inlet temp rise (whole-session energy balance, needs pool volume). See `docs/inventory.md`.
+
+### Changed
+- **Housekeeper dashboard reorganised** — added a dedicated **Prompts** tab as the first view,
+  gathering all AI narration cards (AI snapshot + Charge tonight? + Irrigation); the **Energy** tab
+  now carries no prompt cards. New tab order: **Prompts → Energy → Live → Flow** (Sankey).
+- **Charge advisory projects battery-on-arrival-home when away** — instead of an away/home guard, the
+  script computes km-per-% (`range / SoC`) and subtracts the drive home (crow-flies `distance()` ×
+  **1.5** road factor) to estimate the SoC when the car gets home, then decides off that band. Removes
+  the "say nothing if away" behaviour. Verified live with the car ~15 km out (SoC 79% → ~74%).
+- **Single "Refresh all advisories" button** — the per-card refresh buttons (snapshot / advisory /
+  forecast) are replaced by one button at the top of the Prompts tab, running new
+  `script.refresh_all_advisories` (energy snapshot + charge advisory + garden rain forecast).
+- **Irrigation card now reports "Since midnight" too** — alongside *Next 24 hours*, it shows whether
+  each past-due scheduled run **watered as scheduled** or the day **was cancelled because of rain**
+  (schedule-inferred; the Tuya `…_daily_irrigation_volume` sensors are stale/non-resetting so are not
+  used). Heading simplified to **Irrigation**.
 
 ## [0.1.0] — 2026-06-22
 

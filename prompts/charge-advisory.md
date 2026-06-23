@@ -23,16 +23,27 @@ imperfect because the output is a suggestion to a person, not a control action (
 > state automatically. In a direct service/API call they are NOT rendered — pre-render for ad-hoc tests.
 
 ## Decision skeleton (encoded in the prompt; HA supplies the facts)
+
+Instead of a home/away guard, HA **projects the battery on arrival home** when the car is away, and
+the decision runs off that projected figure (so an away car with a short trip home is still advised
+correctly). Projection (computed in HA, ADR-0001):
+
 ```
-home?  ── no ─→  say nothing about charging (just note it's away)
-  │ yes
-plugged in?  ── no ─→  "at X%, not plugged in — plug in tonight if you want a charge"
-  │ yes
-SoC < 40%        → charge tonight (high confidence)
-SoC 40–60%       → only if tomorrow needs a long drive (judge from the diary)
-SoC > 60%        → normally skip, unless the diary clearly shows a long trip
-        └ overlay: strong solar tomorrow → could top up from solar by day, not grid overnight
+km_per_% = range_km / SoC%
+% to get home = (crow-flies distance from home × 1.5 road factor) / km_per_%
+projected SoC = SoC − % to get home        (= SoC when already home)
 ```
+
+```
+projected SoC < 40%   → charge tonight (high confidence)
+projected SoC 40–60%  → only if tomorrow needs a long drive (judge from the diary)
+projected SoC > 60%   → normally skip, unless the diary clearly shows a long trip
+  plugged in?  no ─→  "plug in tonight (once home) if you want a charge"
+  overlay: strong solar tomorrow → could top up from solar by day, not grid overnight
+  away? → note it's away and that the figure is the estimate for when it gets home
+```
+
+The **1.5×** road factor inflates the straight-line GPS distance to an approximate driving distance.
 
 ## Entities used
 | Fact | Entity |
@@ -40,8 +51,8 @@ SoC > 60%        → normally skip, unless the diary clearly shows a long trip
 | State of charge | `sensor.audi_q4_e_tron_state_of_charge` (%) |
 | Target SoC | `sensor.audi_q4_e_tron_target_state_of_charge` |
 | Plugged in | `binary_sensor.audi_q4_e_tron_plug_state` |
-| At home | `device_tracker.audi_q4_e_tron_position` |
-| Range | `sensor.audi_q4_e_tron_range` (km) |
+| Location / distance from home | `device_tracker.audi_q4_e_tron_position` (GPS) — `distance()` gives crow-flies km from home |
+| Range | `sensor.audi_q4_e_tron_range` (km) — with SoC gives km per % |
 | Tomorrow's solar | `sensor.energy_production_tomorrow` (Forecast.Solar — weather + daylight baked in) |
 | Unit rate | `sensor.octopus_energy_electricity_21j0061481_2000017536930_current_rate` |
 | Tomorrow's diary | `calendar.richard`, `calendar.ruth` |
@@ -53,24 +64,31 @@ Use ONLY the facts below (already computed — do not do arithmetic or re-infer 
 Advisory only; the household decides. Reply in 1-2 short sentences, under 240 characters, plain
 English, no markdown, no preamble.
 
-Apply this guide:
-- Car not at home -> say nothing about charging, just note it's away.
-- At home but NOT plugged in -> main point is to plug in tonight if a charge is wanted.
-- Battery under 40% -> suggest charging tonight.
-- Battery 40-60% -> only worth charging if tomorrow needs a long drive (judge from the diary).
-- Battery over 60% -> normally skip, unless the diary clearly shows a long trip.
+Apply this guide (use the estimated 'battery when home' band for the decision):
+- Battery band low (under 40%) -> suggest charging tonight.
+- Battery band medium (40-60%) -> only worth charging if tomorrow needs a long drive (judge from the diary).
+- Battery band ample (over 60%) -> normally skip, unless the diary clearly shows a long trip.
+- If the car is away, note it's away and that the battery figure is the estimate for when it gets home.
+- If NOT plugged in, the main practical point is to plug in tonight (once home) if a charge is wanted.
 - If tomorrow's solar is strong, you may note it could top up from solar by day instead of the grid.
 
-Facts:
-- Car location: home / away
+Facts (HA pre-computes; carfacts holds the first block):
+- Car location: home / away, ~NN km from home
+- Current battery: NN%
+- Estimated battery when home: NN% (band: low/medium/ample); ~N% used to drive ~NN km home
+  (when home, this line is "Battery for the decision: NN% (band ...)" instead)
 - Plugged in: yes / no
-- Battery (state of charge): NN% (band: low / medium / ample)
 - Charge limit set on car: NN%
 - Estimated range: NN km
 - Tomorrow's solar forecast: N.N kWh
 - Current electricity rate: GBP 0.NN/kWh
 - Tomorrow's diary: <Who: summary (HH:MM) @ location | ...> or "nothing scheduled"
 ```
+
+> **Projection wiring:** a `variables` step builds `carfacts` (location, current %, projected-when-home
+> % + band, plugged-in) via `distance('device_tracker.audi_q4_e_tron_position')` × 1.5 and
+> `range/SoC`; the AI Task instructions embed `{{ carfacts }}`. Verified live with the car away
+> (~15 km out, SoC 79% → projected ~74%, ample) on 2026-06-23.
 
 ## Verification (test-fire, 2026-06-22, warm model)
 Facts: home, **not plugged**, SoC **83 %** (ample), solar tomorrow ~9 kWh, diary = a 08:00 leisure-centre

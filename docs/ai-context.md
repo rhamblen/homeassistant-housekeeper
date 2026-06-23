@@ -37,7 +37,7 @@ demand). Never ask the LLM to crunch raw numbers — see [ADR-0001](decisions/00
 | Cost / tariff | Octopus (half-hourly, ~1 day delayed; no Home Mini) |
 | Access to HA | via the `Home_Assistant` MCP tools in-session |
 | Ollama entry | `01KVNASEQNK3PXX03ZE7TX943D` (loaded). AI Task entity `ai_task.ollama_ai_task_llama3_1` (llama3.1, num_ctx 8192, keep_alive -1) |
-| Housekeeper dashboard | `/ai-housekeeper` (dashboard_id `ai_housekeeper`). AI snapshot via `input_text.ai_energy_snapshot` + `script.refresh_energy_snapshot`. **Flow** view = Sankey |
+| Housekeeper dashboard | `/ai-housekeeper` (dashboard_id `ai_housekeeper`). Tab order: **Prompts → Energy → Live → Flow**. **Prompts** tab gathers the AI/plan cards + one **Refresh all advisories** button (`script.refresh_all_advisories` → energy snapshot + charge advisory + garden rain forecast): AI snapshot `input_text.ai_energy_snapshot` + `script.refresh_energy_snapshot`; Charge tonight? `input_text.ai_charge_advisory` + `script.charge_advisory_generate` (projects SoC-on-arrival-home when away: `range/SoC` × `distance()` × 1.5 road factor); **Irrigation** — deterministic markdown card with *Since midnight* + *Next 24 hours*, see `prompts/irrigation-plan.md`. Energy tab carries no prompt cards. **Flow** view = Sankey |
 | HACS dependency | `MindFreeze/ha-sankey-chart` (`custom:sankey-chart`) powers the Flow view. `sensor.other_baseline_today` = unmetered remainder |
 | Baseline (Phase 4 down-payment) | `sensor.house_baseline_power` (statistics value_min 24h) + `sensor.house_baseline_today`. Settling ~24-48h; not yet wired into Sankey. Disaggregation spec: `docs/phases/phase-4-load-disaggregation.md` |
 
@@ -66,6 +66,10 @@ demand). Never ask the LLM to crunch raw numbers — see [ADR-0001](decisions/00
 | `sensor.washing_machine_energy` / `_machine_state` / `_job_state` / `_completion_time` | Samsung washer (SmartThings); energy reliable, live W coarse |
 | `sensor.hot_water_diverted_energy_solar_iboost` | Immersion diversion (kWh) |
 | `sensor.garden_water_meter_flow_rate` (L/h) + zone valves `switch.tap_*` | Leak watchdog (Phase 3) |
+| `input_boolean.garden2_{a,b}_schedule_armed` / `input_select.garden2_{a,b}_water_start_time` / `input_boolean.garden2_{a,b}_water_{mon..sun}` | Two garden watering schedules (A/B); start time + per-day enable. Sequences = `script.garden2_{a,b}_watering_sequence` |
+| `input_text.garden2_{a,b}_valve_{1..5}_entity` + `input_number.garden2_{a,b}_valve_{1..5}_duration` | Per-schedule valve slots: which `switch.tap_*` zone + minutes (0 = unused). Source for the irrigation brief |
+| `input_boolean.garden_rain_cancel` / `input_number.garden_rain_threshold` / `input_datetime.garden_last_rain` / `input_boolean.garden_winter_shutdown` | Rain/season gate (`automation.garden_rain_auto_cancel_check`, reset nightly). `rain_cancel` suppresses **today's** runs only. Feeds `prompts/irrigation-plan.md` |
+| `input_number.garden_rain_prob_tomorrow` + `automation.garden_forecast_rain_recorder` | Tomorrow's daily precip probability (Met Office), refreshed every 30 min. Lets the live **Irrigation** card on the Prompts tab give tomorrow's runs a rain verdict without an LLM call |
 | `sensor.battery_critical_devices` / `sensor.battery_low_devices` | Existing battery roll-ups (analyst work already done) |
 
 Full baseline in [inventory.md](inventory.md); design/hardware detail in [architecture.md](architecture.md).

@@ -13,8 +13,8 @@ live system. Update as integrations change.
 | Whole-house grid | myenergi harvi | `sensor.myenergi_harvi_11174172_power_ct_grid` (W, live), `..._power_ct_generation`, `..._power_ct_storage` | Real-time; neg grid = export |
 | myenergi hub | myenergi | `sensor.myenergi_hub_20111566_power_import` / `_export` / `_generation` | Live |
 | Washing machine | SmartThings (Samsung) | `sensor.washing_machine_energy` (kWh), `_machine_state`, `_job_state`, `_completion_time` | Energy reliable; live W coarse |
-| Pool circuit | Shelly PM | `sensor.pool_power_power` (W), `sensor.pool_power_energy` (kWh) | Live |
-| Pool heat pump | integration | `sensor.pool_heat_pump_power` (W) | Live |
+| Pool circuit | Shelly PM | `sensor.pool_power_power` (W), `sensor.pool_power_energy` (kWh) | **SEPARATE supply from the house meter** — the harvi CT clamp (and Octopus) do NOT measure pool. Shelly measures the pool sub-board: heat pump + pump + lights. |
+| Pool heat pump | template (derived from Shelly) | `sensor.pool_heat_pump_power` (W) = `max(0, pool_power_power − 252 − (26 if lights on))` | Subtracts pool pump (252 W fixed) and lights (26 W when on). Confirmed topology 2026-06-23. |
 | EV charger | myenergi zappi | `sensor.myenergi_zappi_20894508_power_ct_internal_load` | Charge mode Eco+ |
 | EV (car) | Audi connect | `sensor.audi_q4_e_tron_charging_power` | |
 | Hot water diversion (immersion) | **harvi CT3 clamp** via template (NOT a real iBoost integration, NOT the Zappi) | `sensor.hot_water_diverted_solar_iboost` (W) = `-1 × ..._power_ct_storage`; `sensor.hot_water_diverted_energy_solar_iboost` (kWh) | CT3 ("storage", no battery) is clamped on the immersion diverter. Real CT measurement, just surfaced via template. Sub-meter of a load already in `house_power_now` (gen+grid) — do NOT add CT3 as a source. Verify clamp by running immersion → should jump to ~3 kW. |
@@ -49,7 +49,28 @@ live system. Update as integrations change.
 ## Delivery surfaces
 - Mobile `notify`: Richard's iPhone(s), iPads. Sonos (Beam, etc.) + Alexa dots for TTS.
 
+## Pool heat pump COP — blocked, open issue
+
+**Method (agreed 2026-06-23):** energy-balance over a heating session —
+`COP = (pool_volume_L × 4.186 × pool_temp_rise_°C) ÷ heat_pump_kWh_session`.
+No outlet temp or flow meter needed. Needs only pool volume (unknown) + pool temp
+(`sensor.pool_chem_temperature` / heat pump inlet, 1 °C resolution).
+
+**Blocked because:**
+- The Tuya heat pump exposes inlet water temp, compressor current, coil/pipe/ambient/discharge
+  temps — but **no outlet water temp** and **no flow meter**.
+- 1 °C resolution on inlet temp means the delta over a short session is too coarse for a
+  reliable single-session COP; a multi-hour session raising the pool 3+ °C gives a usable figure.
+- Pool volume not yet confirmed.
+
+**To unblock (either option):**
+1. *Hardware (accurate):* outlet-temp probe + flow meter on the return pipe → instantaneous COP.
+2. *Software (approximate):* capture pool inlet temp at heat-pump start + stop; use pool volume
+   × 4.186 × ΔT ÷ kWh session; average over several sessions. Need pool volume from owner.
+   Then add `utility_meter` on `sensor.pool_heat_pump_power` for per-session kWh.
+
 ## Not measured (gaps)
 - Per-room / per-circuit electricity (no CT clamps beyond harvi at the board) → Phase 7
   or inference (Phase 4).
 - Humidity per room — to confirm.
+- **Pool COP** — see open issue above.
