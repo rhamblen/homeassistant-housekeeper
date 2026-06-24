@@ -1,7 +1,8 @@
 # Phase 4 — Load disaggregation (spec)
 
-**Status:** ◐ Spec + first slice. Down-payment helpers built 2026-06-21 (`house_baseline_power`,
-`house_baseline_today`). **Kitchen estimate v1 built 2026-06-22** — see below.
+**Status:** ◐ In progress. Down-payment helpers built 2026-06-21 (`house_baseline_power`,
+`house_baseline_today`). Kitchen estimate v1 built 2026-06-22. **Kitchen v2 (per-session
+measured draw) built 2026-06-24** — see below.
 
 ## Kitchen estimate v1 (2026-06-22)
 `sensor.kitchen_estimated_power` (W) = sum of **assumed watts for each Neff appliance whose
@@ -12,17 +13,56 @@ kitchen) so the consumption stack still sums to the house total — added as a w
 - **It's an estimate, not measured** — state × fixed watts; ignores oven thermostat duty-cycle.
 - No back-history (new sensor) — the band fills forward.
 
-### Kitchen accuracy v2 — learn real watts from the power step (confirmed approach)
-Replace the fixed assumptions with **measured** draw: when a Neff appliance switches to `…PowerState.On`,
-snapshot `house_power_now` **just before** the transition and again **a few seconds after** it settles;
-the **delta (after − before) = that appliance's real power**. The matching **drop at power-off** confirms it.
-Bank that delta each time and **average over many switch-ons** to build a learned per-appliance wattage
-that supersedes the estimate.
-- **Only clean/isolated steps count** — discard any sample where another tracked load (EV, immersion,
-  pool, etc.) changed within the same few seconds, else the delta is contaminated. Hence learn-over-time.
-- **Ovens modulate** — the on-delta is the *element* peak (~2 kW); combine with cavity-temperature /
-  operation-state (both exposed) to model heating vs coasting for energy (not just peak power).
-- Deterministic capture loop (HA/n8n); LLM narrates only (ADR-0001).
+## Kitchen estimate v2 — per-session measured draw (2026-06-24)
+
+**Built and live.** Replaces fixed assumed watts with a measured delta captured at each switch-on.
+
+### Design rationale
+Appliance draw varies by usage — an oven preheating draws ~2 kW, maintaining ~0.5 kW. A
+long-term average of either is wrong for the current session. The correct model: measure the
+actual house-load step at the moment this appliance turns on, and use *that* value for the
+duration of this session. Formula:
+
+```
+Hr     = house_power_now − car − pool − immersion   (house running load)
+Hr_net = Hr − washing_machine                       (washing is sub-metered → known, not a contaminant)
+O      = Hr_net  when kitchen is idle               (other background)
+K      = Hr_net − O  when any appliance is on       (kitchen contribution this session)
+```
+
+Per-device: at each `…PowerState.On` trigger, delta = `Hr_net_after − Hr_net_before` (8 s
+settle). That delta is this appliance's draw for *this cycle*. Next switch-on overwrites it.
+
+### HA objects
+- **7 `input_number.kitchen_learned_watts_{oven_l,oven_r,hob,dishwasher,extractor,warming_l,warming_r}`**
+  — store the most-recent switch-on delta per appliance. Seeded at v1 assumed values
+  (1500/1500/1500/1000/120/300/300 W) as cold-start fallback until first real measurement.
+- **`sensor.kitchen_energy_total`** (integration, kWh, left method) — Riemann integral of
+  `sensor.kitchen_estimated_power`. Feeds the utility_meters below.
+- **`sensor.kitchen_energy_daily`** / **`sensor.kitchen_energy_monthly`** (utility_meters) — daily
+  and monthly kWh totals for kitchen. Subtracted from `sensor.other_baseline_today` /
+  `sensor.other_baseline_monthly` so "Other" always excludes kitchen.
+- **Automation `automation.kitchen_measure_appliance_draw_from_power_step`** — `mode: parallel`,
+  7 state → `…PowerState.On` triggers. At trigger: capture `Hr_net_before`. After 8 s: capture
+  `Hr_net_after`, compute `delta`. Contamination guard: discard if EV/pool/immersion moved > 200 W
+  (washing is subtracted, so its changes don't contaminate). If `30 < delta < 5000 W`: write
+  `delta` directly to the appliance's `kitchen_learned_watts_*` helper (simple assignment, no average).
+- **`sensor.kitchen_estimated_power`** — unchanged in structure; reads `kitchen_learned_watts_*`,
+  each gated by `is_state(neff_entity, '…PowerState.On')`.
+
+### Behaviour
+- **First run:** uses v1 seed values.
+- **After first switch-on:** uses the delta measured at that switch-on for the rest of the session.
+- **Next session:** overwrites with a fresh delta — always reflects the current usage, not a historical mean.
+- The stored value persists across HA restarts and serves as the opening estimate until the next
+  clean measurement.
+
+### Kitchen accuracy v2 — per-session delta (built, see section above)
+Built 2026-06-24. See the v2 section above for the full design. Key principle: each switch-on
+captures a fresh delta (`Hr_net_after − Hr_net_before`); that session's actual draw is used for
+the duration, not averaged with prior sessions. Washing machine is subtracted live (not guarded).
+EV/pool/immersion changes > 200 W discard the sample. Next step for higher accuracy: oven
+operation-state / cavity temperature to model duty-cycle within a session.
 
 Goal: split the Sankey's big **"Other / baseline"** block into real loads, so the diagram shows
 where the unmonitored consumption actually goes (kitchen, fridge/freezer, dryer, etc.).

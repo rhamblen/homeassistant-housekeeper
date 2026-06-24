@@ -41,6 +41,25 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   a white/grey band on the 24h Consumption chart. Estimate only (tunable); accuracy path noted
   (oven operation-state/temperature) in the Phase 4 spec.
 
+- **Kitchen energy metering (daily + monthly)** — `sensor.kitchen_energy_total` (Riemann integral,
+  kWh, left method) + `sensor.kitchen_energy_daily` / `sensor.kitchen_energy_monthly` (utility_meters).
+  `sensor.other_baseline_today` and `sensor.other_baseline_monthly` updated to subtract kitchen
+  so house "Other" shrinks accordingly and energy balances are preserved. Dashboard: **Loads (today)**
+  and **This month** sections each gain a "Kitchen (Neff)" tile; Sankey gains a Kitchen node carved
+  out of the "Other" leaf; "House (kitchen + other)" tile labels simplified to "Other".
+- **Kitchen estimate v2** — `sensor.kitchen_estimated_power` now uses **per-session measured draw**
+  instead of fixed assumed watts. Formula: `Hr = house_power_now − car − pool − immersion`;
+  `Hr_net = Hr − washing` (SmartThings sub-metered, so already known); when all kitchen appliances
+  are off `Hr_net = O` (other baseline); when on `K = Hr_net − O`. In practice: automation
+  `automation.kitchen_measure_appliance_draw_from_power_step` (mode: parallel) fires on each Neff
+  appliance → `…PowerState.On`, snapshots `Hr_net_before`, waits 8 s, computes
+  `delta = Hr_net_after − Hr_net_before` — that delta is the appliance's **actual draw this session**
+  and is written directly to `input_number.kitchen_learned_watts_{appliance}`. Washing machine
+  is subtracted in both readings (not a contaminant); EV/pool/immersion moves > 200 W still
+  discard the sample. The stored value persists and is used as the opening estimate on the next
+  switch-on until overwritten. 7 `input_number` helpers (seeded at v1 assumed values as cold-start
+  fallback). Estimate is always from this cycle's real measurement, not a long-term average.
+
 ### Notes / open issues
 - **Pool sub-metering (2026-06-23)** — pool circuit is on the **house supply** (harvi sees it);
   the Shelly PM sub-meters the pool circuit specifically (heat pump + pump + lights), the same
